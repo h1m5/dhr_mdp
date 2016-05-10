@@ -18,17 +18,26 @@ template<typename NodeType, typename ArcType>
 class HGraphArc
 {
 public:
-    HGraphArc(){}
-    HGraphArc(ArcType p_weight) : m_weight(p_weight){}
+    HGraphArc(){
+        m_node = NULL;
+    }
+    HGraphArc(ArcType p_weight) : m_weight(p_weight){m_node = NULL;}
     HGraphNode<NodeType, ArcType> *m_node;
     ArcType m_weight;
 
 
     friend QDataStream &operator<<(QDataStream &ds, const HGraphArc<NodeType,ArcType> & rhs)
     {
-        qDebug() << "is at - arc";
         ds << rhs.m_weight;
         ds << *rhs.m_node;
+        return ds;
+    }
+
+    friend QDataStream &operator>>(QDataStream &ds, HGraphArc<NodeType,ArcType> & rhs)
+    {
+        ds >> rhs.m_weight;
+        rhs.m_node = new HGraphNode<NodeType, ArcType>();
+        ds >> *rhs.m_node;
         return ds;
     }
 };
@@ -61,13 +70,36 @@ public:
 
     friend QDataStream &operator<<(QDataStream &ds, const Node &rhs)
     {
-        qDebug() << "came here seri - node";
         ds << rhs.m_data;
-        foreach(Arc arc, rhs.m_arcList){
-            ds << arc;
+        ds << rhs.m_arcList.size ();
+        for(int i=0; i<rhs.m_arcList.size (); i++){
+            ds << rhs.m_arcList.at (i);
         }
         ds << rhs.m_marked;
         return ds;
+    }
+
+    friend QDataStream& operator>>(QDataStream &ds, Node& rhs)
+    {
+        ds >> rhs.m_data;
+
+        int numberOfArcs = 0;
+        ds >> numberOfArcs;
+
+        for(int i=0; i<numberOfArcs; i++){
+            Arc arc;
+            ds >> arc;
+            rhs.AddArc (arc);
+        }
+
+        ds >> rhs.m_marked;
+
+        return ds;
+    }
+
+    void AddArc(Arc p_arc)
+    {
+        m_arcList << p_arc;m_arcList.begin ();
     }
 
     void AddArc(Node* p_node, ArcType p_weight)
@@ -80,7 +112,6 @@ public:
 
     bool operator== (const Node& p_rhs) const {
         return m_data == p_rhs.m_data;
-//        return true;
     }
 
     bool operator!= (const Node& p_rhs) const{
@@ -126,7 +157,7 @@ public:
         //deep copy
         for(int i=0; i<mul.m_nodes.size (); i++)
         {
-            m_nodes << new Node(mul.m_nodes.at (i));
+            m_nodes << new Node(*mul.m_nodes.at (i));
         }
     }
 
@@ -134,8 +165,8 @@ public:
     // Serialization begins here
     friend QDataStream& operator<<(QDataStream &ds, const MultiGraph& rhs)
     {
-        qDebug() << "is herer - multG";
-        for(int i=0; i<rhs.m_nodes.size (); i++){
+        ds << rhs.m_count;
+        for(int i=0; i<rhs.m_count; i++){
             ds << *rhs.m_nodes.at (i);
         }
         return ds;
@@ -145,16 +176,16 @@ public:
     friend QDataStream& operator>>(QDataStream &ds, MultiGraph& rhs)
     {
         // clear graph data
-        qDebug() << rhs.m_count;
         rhs.Clear ();
-        qDebug() << rhs.m_count;
 
+        int count = 0;
+        ds >> count;
         // refill graph with data from stream
-//        while(!ds.atEnd ()){
-//            qDebug() << "here";
-//            Node* aNode = new Node();
-////            ds >> *aNode;
-//        }
+        for(int i=0; i<count; i++){
+            Node* aNode = new Node();
+            ds >> *aNode;
+            rhs.AddNode (aNode);
+        }
 
         return ds;
     }
@@ -187,12 +218,19 @@ public:
         return true;
     }
 
+    bool AddNode(Node *p_node){
+        m_nodes << p_node;
+        m_count++;
+        return true;
+    }
+
     void Clear()
     {
         for(int i=0; i<m_nodes.size (); i++)
         {
             RemoveNode (i);
         }
+        m_nodes.clear ();
     }
 
     void RemoveArc(int p_from, int p_to) const
@@ -375,17 +413,12 @@ class MultiGraphIterator
 public:
     typedef HGraphArc<NodeType, ArcType> Arc;
     typedef HGraphNode<NodeType, ArcType> Node;
-    MultiGraphIterator(MultiGraph<NodeType,ArcType> &gr) : m_graph(gr)
-    {
-//        m_graph = gr;
-    }
+    MultiGraphIterator(MultiGraph<NodeType,ArcType> &gr) : m_graph(gr){}
 
     void begin()
     {
-//        if(m_graph != NULL){
-            m_node = m_graph.m_nodes.first ();
-            index = 0;
-//        }
+        m_node = m_graph.m_nodes.first ();
+        index = 0;
     }
 
     void operator++()

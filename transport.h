@@ -27,8 +27,12 @@ public:
     }
 
     friend QDataStream& operator<<(QDataStream &ds, const City& rhs) {
-        qDebug() << "is at -< City";
         ds << rhs.name ();
+        return ds;
+    }
+
+    friend QDataStream& operator>>(QDataStream &ds, City& rhs) {
+        ds >> rhs._name;
         return ds;
     }
 
@@ -86,11 +90,19 @@ public:
     }
 
     friend QDataStream& operator<<(QDataStream &ds, const Transport& rhs){
-        qDebug() << "is at >-< transport";
         ds << rhs.transportMeans ();
         ds << rhs.cost ();
         return ds;
     }
+
+    friend QDataStream& operator>>(QDataStream &ds, Transport& rhs){
+        int tempMeans;
+        ds >> tempMeans;
+        rhs.setTransportMeans (tempMeans);
+        ds >> rhs._cost;
+        return ds;
+    }
+    void setTransportMeans(int transportMeans);
 };
 
 

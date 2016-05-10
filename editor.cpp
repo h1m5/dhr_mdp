@@ -29,6 +29,9 @@ void Editor::on_pushButton_clicked()
     _newCityDialog.exec ();
     qDebug() << _newCityDialog.cityName ();
 
+    if(_newCityDialog.cityName () == "")
+        return;
+
     //Insert new City object into graph
     if(_graph.GetNode (_newCityDialog.cityName ()) == NULL){
         _graph.AddNode (QString(_newCityDialog.cityName ()));

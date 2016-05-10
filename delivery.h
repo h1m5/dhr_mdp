@@ -26,6 +26,7 @@ private slots:
 private:
     Ui::Delivery *ui;
     MultiGraph<City, Transport> m_graph;
+    void LoadDefault();
 };
 
 #endif // DELIVERY_H

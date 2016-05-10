@@ -1,5 +1,10 @@
 #include "transport.h"
 
+void Transport::setTransportMeans(int transportMeans)
+{
+    _transportMeans = TRANSPORT_MEANS(transportMeans);
+}
+
 int Transport::cost() const
 {
     return _cost;
