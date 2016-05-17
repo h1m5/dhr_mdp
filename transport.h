@@ -50,6 +50,8 @@ protected:
 public:
     Transport(){}
     int cost() const;
+    static Transport create(QString type, int cost = 0);
+
     TRANSPORT_MEANS transportMeans() const;
     virtual QString tpMeansString() const {
         QString d = "";
@@ -71,7 +73,7 @@ public:
         return _transportMeans == rhs;
     }
     bool operator==(const Transport &rhs){
-        return _transportMeans == rhs.transportMeans ();
+        return _transportMeans == rhs.transportMeans () && _cost == rhs.cost ();
     }
 
     friend QDebug operator<<(QDebug d, const Transport& rhs) {

@@ -10,6 +10,12 @@ int Transport::cost() const
     return _cost;
 }
 
+Transport Transport::create(QString type, int cost){
+    if(type == "Road") return Road(cost);
+    if(type == "Air") return Air(cost);
+    if(type == "Train") return Train(cost);
+}
+
 TRANSPORT_MEANS Transport::transportMeans() const
 {
     return _transportMeans;

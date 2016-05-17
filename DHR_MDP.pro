@@ -19,7 +19,10 @@ SOURCES += main.cpp\
     editor.cpp \
     newcity.cpp \
     delivery.cpp \
-    widget.cpp
+    widget.cpp \
+    visualizer.cpp \
+    nodeitem.cpp \
+    arcitem.cpp
 
 HEADERS  += \
     multigraph.h \
@@ -27,7 +30,12 @@ HEADERS  += \
     editor.h \
     newcity.h \
     delivery.h \
-    widget.h
+    widget.h \
+    visualizer.h \
+    publisher.h \
+    subscriber.h \
+    nodeitem.h \
+    arcitem.h
 
 FORMS    += widget.ui \
     editor.ui \
